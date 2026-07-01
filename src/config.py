@@ -11,5 +11,5 @@ CHUNK_SIZE = 500
 CHUNK_OVERLAP = 100
 TOP_K = 4
 
-CHROMA_DIR = "./chroma_db"
-DATA_DIR = "./data"
+CHROMA_DIR = os.getenv("CHROMA_DIR", "./chroma_db")
+DATA_DIR = os.getenv("DATA_DIR", "./data")

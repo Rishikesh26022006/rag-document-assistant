@@ -13,9 +13,17 @@ from src.config import CHROMA_DIR, DATA_DIR
 app = FastAPI(title="Intelligent Document Research Assistant API")
 
 # Allow the React frontend (running on a different port) to call this API
+origins = ["http://localhost:5173", "http://localhost:3000"]
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS")
+if allowed_origins_env:
+    origins.extend([o.strip() for o in allowed_origins_env.split(",") if o.strip()])
+else:
+    origins.append("*")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # tighten this later for production
+    allow_origins=origins,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -57,3 +65,8 @@ def ask_question(payload: dict):
     vectorstore = load_existing_vectorstore()
     result = answer_question(vectorstore, query)
     return result
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.getenv("PORT", "8000"))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)

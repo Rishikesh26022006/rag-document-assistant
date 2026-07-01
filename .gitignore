@@ -6,3 +6,5 @@ __pycache__/
 *.pyo
 data/
 frontend/node_modules/
+frontend/dist/
+*.log
