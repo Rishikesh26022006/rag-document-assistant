@@ -2,7 +2,7 @@ import os
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEndpointEmbeddings
 
 
 from src.config import CHUNK_SIZE, CHUNK_OVERLAP, EMBEDDING_MODEL, CHROMA_DIR, DATA_DIR
@@ -26,7 +26,10 @@ def build_vectorstore(file_paths):
         all_chunks.extend(chunks)
         print(f"Loaded {len(chunks)} chunks from {os.path.basename(path)}")
 
-    embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
+    embeddings = HuggingFaceEndpointEmbeddings(
+        model=EMBEDDING_MODEL,
+        huggingfacehub_api_token=os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACEHUB_API_TOKEN")
+    )
     vectorstore = Chroma.from_documents(
         all_chunks, embeddings, persist_directory=CHROMA_DIR
     )
@@ -35,5 +38,8 @@ def build_vectorstore(file_paths):
 
 def load_existing_vectorstore():
     """Loads a previously-built vectorstore instead of rebuilding from scratch."""
-    embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
+    embeddings = HuggingFaceEndpointEmbeddings(
+        model=EMBEDDING_MODEL,
+        huggingfacehub_api_token=os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACEHUB_API_TOKEN")
+    )
     return Chroma(persist_directory=CHROMA_DIR, embedding_function=embeddings)
